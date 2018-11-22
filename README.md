@@ -6,13 +6,13 @@ My modified app can be accessed at [https://malcolm-bowles.shinyapps.io/my_app/]
 
 I implemented the following modifications:
 
-----------------------------------------------------
-Modifications                     | 
-----------------------------|-----|-----|-----|
-Added `radioButtons` to sort by Name, Price, Alcohol content, or Sweetness           |  
-Added an image of the BC Liquor Store to the UI.         |  
-Fixed issue when the user selects filters that return 0 results.   |   
-Showed the number of results found whenever the filters change.   |    
+
+Modifications:                    
+
+- Added `radioButtons` to sort by Name, Price, Alcohol content, or Sweetness            
+- Added an image of the BC Liquor Store to the UI.          
+- Fixed issue when the user selects filters that return 0 results.     
+- Showed the number of results found whenever the filters change.       
 
 
 
