@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(DT)
+library(stringr)
 
 bcl <- read.csv("bcl-data.csv", stringsAsFactors = FALSE)
 
@@ -9,19 +11,22 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       img(src = "BC_Liquor_Store_Port_Coquitlam.jpg", height = "95%", width = "95%"),
-      helpText("Image with permission from Premeditated Chaos - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=63286919"),
+      helpText("Image used under CC BY-SA 4.0 license, from Premeditated Chaos - https://commons.wikimedia.org/w/index.php?curid=63286919"),
       sliderInput("priceInput", "Price", 0, 100, c(25, 40), pre = "$"),
+      uiOutput("countryOutput"),
       radioButtons("typeInput", "Product type",
                   choices = c("BEER", "REFRESHMENT", "SPIRITS", "WINE"),
                   selected = "WINE"),
-      #selectInput("sortInput", "Sort by", choices = c("None", "Price"), selected = NULL),
-      radioButtons("sortInput", "Sort by", choices = c("Product Name", "Alcohol content", "Price",  "Sweetness"), selected = NULL),
-      #checkboxGroupInput("sortInput", "Sort by price", value = FALSE),
-      uiOutput("countryOutput")
+      
+      radioButtons("sortInput", "Sort by", choices = c("Name", "Alcohol content", "Price",  "Sweetness"), selected = NULL)
+      
+      
     ),
     mainPanel(
       plotOutput("coolplot"),
-      br(), br(),
+      br(),
+      textOutput("num_results"), 
+      br(),
       tableOutput("results")
     )
   )
@@ -45,21 +50,23 @@ server <- function(input, output) {
              Country == input$countryInput
       ) %>% 
       select(c(-Country, -Type))
-    
+    if(nrow(bcl_modified) == 0){
+      return(NULL)
+    }
     if(input$sortInput == "Price"){
-        arrange(bcl_modified, Price)
+        return(arrange(bcl_modified, Price))
     }
     else if(input$sortInput == "Alcohol content"){
-      arrange(bcl_modified, Alcohol_Content)
+      return(arrange(bcl_modified, Alcohol_Content))
     }
-    else if(input$sortInput == "Product Name"){
-      arrange(bcl_modified, Name)
+    else if(input$sortInput == "Name"){
+      return(arrange(bcl_modified, Name))
     }
     else if(input$sortInput == "Sweetness"){
-      arrange(bcl_modified, Sweetness)
+      return(arrange(bcl_modified, Sweetness))
     }
     else{
-      bcl_modified
+      return(bcl_modified)
     }
     
   })
@@ -73,8 +80,20 @@ server <- function(input, output) {
   })
 
   output$results <- renderTable({
+    if (is.null(filtered())) {
+      return()
+    }
     filtered()
   })
+  output$num_results <- renderText({
+    if(is.null(filtered())){
+      paste("We found 0 options for you :(")
+    }
+    else {
+      paste("We found", nrow(filtered()), "options for you :)")
+    }
+  }
+  )
 }
 
 shinyApp(ui = ui, server = server)
